@@ -1,0 +1,96 @@
+<html lang="en">
+  <head>
+    <title> Book Club </title>
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
+  </head>
+  <body>
+    <h1> Book Club </h1>
+    <div id='subtitle'>
+      <p> Be gentle with the website friendos. </p>
+    </div>
+    <div id='cardholder'>
+       <div class='card'>
+         <button type="button" id='signout_button'>Sign Out</button>
+         <label>How far have you read this week?</label>
+         <div contenteditable="true" class="field" id="pagenumber_input" type=text></div>
+         <button type="button" id='pagenumber_button'>Submit</button>      
+         <label>Anything you'd like to share?</label>
+         <div contenteditable="true" class="field" id="comment_input"></div>
+         <button type="button" id='comment_button'>Submit</button>      
+         <button type="button" id='anonymouscomment_button'>Submit Anonymously</button>
+       </div>
+    </div>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io.connect('http://localhost');
+
+    //Init the page
+    socket.on('init', function(data) {
+        var cardholder = document.querySelector('#cardholder');
+        var initCard   = document.createElement('div');
+        initCard.classList.add('card');
+        initCard.id = 'initcard';
+        var content = document.createTextNode(data.welcome);
+        initCard.appendChild(content);
+        cardholder.appendChild(initCard);
+        
+        //Load existing comments from database
+        var comments = data.comments;
+        console.log(comments);
+
+        var i = 0;
+        for (c in comments){
+           console.log("starting loop:");
+           load_comment(comments[i]);
+           i = i + 1;
+        }
+    });
+    
+    //Handle button clicks
+    var pagenumber_button = document.querySelector("#pagenumber_button");
+    var comment_button = document.querySelector("#comment_button");
+    var anonymousshare_button = document.querySelector("#anonymouscomment_button");
+ 
+    pagenumber_button.addEventListener('click', () => {
+       var pagenumber_input = document.querySelector('#pagenumber_input');
+       socket.emit('pagenumber_button', {pagenumber: pagenumber_input.innerHTML});
+       pagenumber_input.innerHTML = "";
+    }); 
+
+    comment_button.addEventListener('click', () => {
+       var comment_input = document.querySelector('#comment_input');
+       socket.emit('comment_button', {user: 'default', comment: comment_input.innerHTML});
+       comment_input.innerHTML = "";
+    }); 
+
+    anonymouscomment_button.addEventListener('click', () => {
+       var anonymouscomment_input = document.querySelector('#anonymouscomment_input');
+       socket.emit('anonymouscomment_button', {pagenumber: anonymouscomment_input.innerHTML});
+       anonymouscomment_input.innerHTML = "";
+    });
+ 
+    //Handle new comments
+    socket.on('new_comment', (data) => {
+       load_comment(data);
+    }); 
+
+    function load_comment(data){
+        var cardholder = document.querySelector('#cardholder');
+        var commentCard   = document.createElement('div');
+        commentCard.classList.add('card');
+        var user = document.createTextNode(data.user+':\n');
+        var comment = document.createTextNode(data.comment);
+        commentCard.appendChild(user);
+        commentCard.appendChild(comment);
+        cardholder.appendChild(commentCard);
+    }
+    
+  
+    
+    
+      
+  </script> 
+</html>
