@@ -62,14 +62,14 @@
 
     comment_button.addEventListener('click', () => {
        var comment_input = document.querySelector('#comment_input');
-       socket.emit('comment_button', {user: 'default', comment: comment_input.innerHTML});
+       socket.emit('comment_button', {user: 'Default', comment: comment_input.innerHTML});
        comment_input.innerHTML = "";
     }); 
 
     anonymouscomment_button.addEventListener('click', () => {
-       var anonymouscomment_input = document.querySelector('#anonymouscomment_input');
-       socket.emit('anonymouscomment_button', {pagenumber: anonymouscomment_input.innerHTML});
-       anonymouscomment_input.innerHTML = "";
+       var comment_input = document.querySelector('#comment_input');
+       socket.emit('comment_button', {user: 'Anonymous', comment: comment_input.innerHTML});
+       comment_input.innerHTML = "";
     });
  
     //Handle new comments
