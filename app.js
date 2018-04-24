@@ -19,13 +19,14 @@ const io = require('socket.io')(server);
 //Handle MongoDB
 
 var db;
+var db_str = 'bookclub';
 const MongoClient = require('mongodb').MongoClient
-const mongo_uri = 'mongodb://admin:admin@ds014648.mlab.com:14648/bookclub';
+const mongo_uri = 'mongodb://admin:admin@ds014648.mlab.com:14648/'+db_str;
 //MongoClient.connect('mongodb://localhost:27018/bookClub', (err,client) => {
 MongoClient.connect(mongo_uri, (err,client) => {
   if(!err){
     console.log("Connected to MongoDB");
-    db = client.db('bookClub');
+    db = client.db(db_str);//
   }else{
     console.log(err);
   }
