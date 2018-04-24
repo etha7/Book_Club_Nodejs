@@ -23,8 +23,6 @@ MongoClient.connect('mongodb://localhost:27018/bookClub', (err,client) => {
   }
 });
 
-
-
 //Handle GETS
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname,'static/index.html'));
@@ -36,40 +34,74 @@ app.get('/about', (req, res) => {
 });
 
 
-
 //Handle server/client events:
 io.on('connection', function(socket) {
 
    //Initiate a new connection
    console.log("New Connection");
-   var welcome_str = 'Welcome! You\'ve connected to the server.';
+   var welcome_str = 'Welcome!';
    //Send welcome, and all saved comments from MongoDB database;
    
    var comments = db.collection('comments');
    comments.find({}).toArray((err, result) => {
       if(err) throw err;
-      console.log(result);         
       socket.emit('init', {welcome: welcome_str, comments: result});
    });
-   
 
-   //Handle pagenumber submittions
-   socket.on('pagenumber_button', (data) => {
-     var pagenumber = data.pagenumber;
-     console.log(pagenumber);
+   socket.on('username_button', (data) => {
+     var entry = {
+                   'username': data.username
+                 }
+     var users = db.collection('users');
+     comments.insert(entry); 
    });
-   
-   //Handle pagenumber submittions
+   //Handle comment submittions
    socket.on('comment_button', (data) => {
      var entry = {
                   'user': data.user, 
                   'comment' : data.comment
                  };
-     console.log(entry);
      var comments = db.collection('comments');
      comments.insert(entry);
      io.sockets.emit('new_comment', data);
    });
+
+   //Initliaze pagenumber
+   var pagenumbers = db.collection('pagenumbers'); 
+   pagenumbers.find({}).sort({'pagenumbers': 1}).limit(1).toArray((err, result)=> {
+         if(err) throw err;
+         if (result.length == 0) {
+            data = { pagenumber: 0 }; 
+         }
+         else {
+            data = { pagenumber: result[0]['pagenumber'] };
+         }
+         io.sockets.emit('new_lowest_pagenumber', data);
+   });
+  
+   //Handle pagenumber submittions
+   socket.on('pagenumber_button', (data) => {
+     var pagenumber = data.pagenumber;
+     var entry = { 
+                  'pagenumber': pagenumber
+                 };
+     var pagenumbers = db.collection('pagenumbers'); 
+     pagenumbers.insert(entry);
+     pagenumbers.find({}).sort({'pagenumbers': 1}).limit(1).toArray((err, result)=> { 
+        var new_min = result[0]['pagenumber']; 
+        if(pagenumber <= new_min){
+           io.sockets.emit('new_lowest_pagenumber', data);
+        }
+     });
+   });
+
+   socket.on('pagenumber_reset_button', (data) => {
+    var pagenumbers = db.collection('pagenumbers');   
+    //Delete all stored pagenumbers
+    pagenumbers.remove({}, (err, obj) => {});
+    
+   });
+   
    
 });
 //Use io.sockets.emit to emit to all sockets

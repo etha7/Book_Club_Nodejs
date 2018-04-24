@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "mongo": "mongo --port 27018"
   },
   "dependencies": {
     "mongodb": "^3.0.7"
