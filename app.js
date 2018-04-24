@@ -14,7 +14,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.listen(port, () => {
   console.log('Server running at http://'+hostname+':'+port+'/');
 });
-const io = socketIO(app);//require('socket.io')(server);
+const io = require('socket.io')(app);
 
 //Handle MongoDB
 
