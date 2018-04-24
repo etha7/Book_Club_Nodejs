@@ -1,11 +1,12 @@
 //Server Code
+const port = process.env.PORT;
 const express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-server.listen(80);
+server.listen(port);
 const hostname = '127.0.0.1';
-const port = 3000;
+//const port = 3000;
 var path = require('path');
 app.use(express.static(__dirname +'/static'));
 app.set('views', path.join(__dirname, 'views'));
@@ -14,7 +15,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 var db;
 const MongoClient = require('mongodb').MongoClient
-MongoClient.connect('mongodb://localhost:27018/bookClub', (err,client) => {
+const mongo_uri = 'mongodb://etha7:guessmypass1@ds014648.mlab.com:14648/bookclub';
+//MongoClient.connect('mongodb://localhost:27018/bookClub', (err,client) => {
+MongoClient.connect(mongo_uri, (err,client) => {
   if(!err){
     console.log("Connected to MongoDB");
     db = client.db('bookClub');
