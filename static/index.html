@@ -89,7 +89,8 @@
        if (username == ""){
           return;
        }
-       socket.emit('username_button', {username: username_input.innerHTML});
+       var username_str = Encoder.htmlDecode(username_input.innerHTML);
+       socket.emit('username_button', {username: username_str});
        username_card.style.display = 'none';
        localStorage.setItem('username', username);
         
@@ -124,7 +125,8 @@
        if(comment_input.innerHTML == ""){
          return;
        }
-       socket.emit('comment_button', {user: username, comment: comment_input.innerHTML});
+       var comment_str = Encoder.htmlDecode(comment_input.innerHTML);
+       socket.emit('comment_button', {user: username, comment: comment_str});
        comment_input.innerHTML = "";
     }); 
 
