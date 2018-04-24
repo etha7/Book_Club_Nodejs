@@ -53,7 +53,21 @@ io.on('connection', function(socket) {
                    'username': data.username
                  }
      var users = db.collection('users');
-     comments.insert(entry); 
+     users.insert(entry); 
+   });
+   
+   socket.on('round_button', (data) => {
+     var users = db.collection('users');
+     users.find({}).toArray((err, result) => {  
+        if(err) throw err;
+        if (result.length == 0){
+           data = { user: 'Default'};
+        } else {
+           var rand_index = Math.floor(Math.random()*result.length);
+           data = { user: result[rand_index]['username'] };
+        }
+        io.sockets.emit('new_round', data); 
+     });
    });
    //Handle comment submittions
    socket.on('comment_button', (data) => {

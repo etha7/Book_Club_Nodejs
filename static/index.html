@@ -18,6 +18,11 @@
          <div contenteditable="true" class="field" id="username_input" type=text></div>
          <button type="button" id='username_button'>Login</button>
        </div>
+       <div class='card' id='round_card'> 
+         The current speaker is:
+         <div id='speaker'>Default</div>
+         <button type="button" id='round_button'>New Round</button>
+       </div>
        <div class='card' id='pagenumber_card'>
          The current lowest page number is: 
          <div id='pagenumber'></div>
@@ -70,8 +75,10 @@
     
     //Handle button clicks
     var username_button = document.querySelector("#username_button");
+    var round_button    = document.querySelector("#round_button");
     var pagenumber_button = document.querySelector("#pagenumber_button");
     var pagenumber_reset_button = document.querySelector("#pagenumber_reset_button");
+    var signout_button = document.querySelector("#signout_button");
     var comment_button = document.querySelector("#comment_button");
     var anonymousshare_button = document.querySelector("#anonymouscomment_button");
     
@@ -88,6 +95,10 @@
         
        login();
     });
+     
+    round_button.addEventListener('click', () => {
+       socket.emit('round_button');
+    });
  
     pagenumber_button.addEventListener('click', () => {
        var pagenumber_input = document.querySelector('#pagenumber_input');
@@ -103,6 +114,11 @@
        document.querySelector("#pagenumber").innerHTML = "0";
     }); 
     
+    signout_button.addEventListener('click', () => {
+       localStorage.clear();
+       location.reload(); 
+    });
+
     comment_button.addEventListener('click', () => {
        var comment_input = document.querySelector('#comment_input');
        if(comment_input.innerHTML == ""){
@@ -120,6 +136,13 @@
        socket.emit('comment_button', {user: 'Anonymous', comment: comment_input.innerHTML});
        comment_input.innerHTML = "";
     });
+
+    //Handle new round
+    socket.on('new_round', (data) => {
+      console.log(data);
+      document.querySelector('#speaker').innerHTML = data.user; 
+    });
+   
  
     //Handle new comments
     socket.on('new_comment', (data) => {
