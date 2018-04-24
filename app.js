@@ -20,7 +20,7 @@ const io = require('socket.io')(server);
 
 var db;
 const MongoClient = require('mongodb').MongoClient
-const mongo_uri = 'mongodb://etha7:guessmypass1@ds014648.mlab.com:14648/bookclub';
+const mongo_uri = 'mongodb://admin:admin@ds014648.mlab.com:14648/bookclub';
 //MongoClient.connect('mongodb://localhost:27018/bookClub', (err,client) => {
 MongoClient.connect(mongo_uri, (err,client) => {
   if(!err){
