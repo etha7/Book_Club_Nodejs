@@ -1,9 +1,14 @@
 {
+  "name":"bookClub",
+  "version":"0.0.1",
   "scripts": {
+    "start": "node app.js",
     "dev": "nodemon app.js",
     "mongo": "mongo --port 27018"
   },
   "dependencies": {
-    "mongodb": "^3.0.7"
+    "express": "~4.16.3",
+    "mongodb": "^3.0.7",
+    "socket.io":"~2.1.0"
   }
 }
