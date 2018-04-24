@@ -1,11 +1,12 @@
 //Server Code
-const port = process.env.PORT;
+const port = process.env.PORT || 8080;
+const hostname = 'localhost';
+
 const express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 server.listen(port);
-const hostname = '127.0.0.1';
 //const port = 3000;
 var path = require('path');
 app.use(express.static(__dirname +'/static'));
@@ -127,7 +128,8 @@ io.on('connection', function(socket) {
 
 
 
-app.listen(port, hostname, () => {
+//app.listen(port, hostname, () => {
+app.listen(port, () => {
   console.log('Server running at http://'+hostname+':'+port+'/');
 });
 
