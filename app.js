@@ -11,10 +11,10 @@ app.use(express.static(__dirname +'/static'));
 app.set('views', path.join(__dirname, 'views'));
 
 //app.listen(port, hostname, () => {
-app.listen(port, () => {
+var server = app.listen(port, () => {
   console.log('Server running at http://'+hostname+':'+port+'/');
 });
-const io = require('socket.io')(app);
+const io = require('socket.io')(server);
 
 //Handle MongoDB
 
