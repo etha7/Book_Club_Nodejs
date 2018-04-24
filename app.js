@@ -6,7 +6,7 @@ const express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-//server.listen(80);
+server.listen(80);
 //const port = 3000;
 var path = require('path');
 app.use(express.static(__dirname +'/static'));
@@ -123,8 +123,6 @@ io.on('connection', function(socket) {
    
 });
 //Use io.sockets.emit to emit to all sockets
-
-
 
 
 
