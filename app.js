@@ -4,13 +4,17 @@ const hostname = 'localhost';
 
 const express = require('express');
 var app = express();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
-server.listen(80);
+//server.listen(80);
 //const port = 3000;
 var path = require('path');
 app.use(express.static(__dirname +'/static'));
 app.set('views', path.join(__dirname, 'views'));
+
+//app.listen(port, hostname, () => {
+var server = app.listen(port, () => {
+  console.log('Server running at http://'+hostname+':'+port+'/');
+});
+var io = require('socket.io')(server);
 
 //Handle MongoDB
 
@@ -126,10 +130,6 @@ io.on('connection', function(socket) {
 
 
 
-//app.listen(port, hostname, () => {
-app.listen(port, () => {
-  console.log('Server running at http://'+hostname+':'+port+'/');
-});
 
 
 
