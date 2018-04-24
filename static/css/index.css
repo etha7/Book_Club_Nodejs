@@ -18,6 +18,11 @@ label {
  display: block;
 }
 
+.cardholder_holder{
+ display: flex;
+ flex-direction: row;
+}
+
 .card {
  display: flex;
  -webkit-flex-direction: column;

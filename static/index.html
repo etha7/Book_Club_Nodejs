@@ -12,34 +12,38 @@
          <p> Be gentle with the website friendos. </p>
        </div>
     </div>
-    <div id='cardholder'>
-       <div class='card' id='username_card'> 
-         Username:
-         <div contenteditable="true" class="field" id="username_input" type=text></div>
-         <button type="button" id='username_button'>Login</button>
+    <div id='cardholder_holder'>
+       <div id='infoholder' class='cardholder'>
+          <div class='card' id='username_card'> 
+            Username:
+            <div contenteditable="true" class="field" id="username_input" type=text></div>
+            <button type="button" id='username_button'>Login</button>
+          </div>
+          <div class='card' id='round_card'> 
+            The current speaker is:
+            <div id='speaker'></div>
+            <button type="button" id='round_button'>New Round</button>
+          </div>
+          <div class='card' id='pagenumber_card'>
+            The current lowest page number is: 
+            <div id='pagenumber'></div>
+            <button type="button" id='pagenumber_reset_button'>Reset</button>
+          </div>
+          <div class='card' id='comment_card'>
+            <button type="button" id='signout_button'>Sign Out</button>
+            <label>How far have you read this week?</label>
+            <div contenteditable="true" class="field" id="pagenumber_input" type=text></div>
+            <button type="button" id='pagenumber_button'>Submit</button>      
+            <label>Anything you'd like to share?</label>
+            <div contenteditable="true" class="field" id="comment_input"></div>
+            <button type="button" id='comment_button'>Submit</button>      
+            <button type="button" id='anonymouscomment_button'>Submit Anonymously</button>
+          </div>
        </div>
-       <div class='card' id='round_card'> 
-         The current speaker is:
-         <div id='speaker'></div>
-         <button type="button" id='round_button'>New Round</button>
+       <div id='commentholder' class='cardholder'>
        </div>
-       <div class='card' id='pagenumber_card'>
-         The current lowest page number is: 
-         <div id='pagenumber'></div>
-         <button type="button" id='pagenumber_reset_button'>Reset</button>
-       </div>
-       <div class='card' id='comment_card'>
-         <button type="button" id='signout_button'>Sign Out</button>
-         <label>How far have you read this week?</label>
-         <div contenteditable="true" class="field" id="pagenumber_input" type=text></div>
-         <button type="button" id='pagenumber_button'>Submit</button>      
-         <label>Anything you'd like to share?</label>
-         <div contenteditable="true" class="field" id="comment_input"></div>
-         <button type="button" id='comment_button'>Submit</button>      
-         <button type="button" id='anonymouscomment_button'>Submit Anonymously</button>
-       </div>
-    </div>
-  </body>
+     </div>  
+     </body>
   <script src="/socket.io/socket.io.js"></script>
   <script>
   
@@ -156,14 +160,14 @@
     }); 
 
     function load_comment(data){
-        var cardholder = document.querySelector('#cardholder');
+        var commentholder = document.querySelector('#commentholder');
         var commentCard   = document.createElement('div');
         commentCard.classList.add('card');
         var user = document.createTextNode(data.user+':\n');
         var comment = document.createTextNode(data.comment);
         commentCard.appendChild(user);
         commentCard.appendChild(comment);
-        cardholder.appendChild(commentCard);
+        commentholder.appendChild(commentCard);
     }
     //Handle new page_numbers
     socket.on('new_lowest_pagenumber', (data) => {
