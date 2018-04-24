@@ -74,7 +74,7 @@ io.on('connection', function(socket) {
            var rand_index = Math.floor(Math.random()*result.length);
            data = { user: result[rand_index]['username'] };
         }
-        speaker_str = data[user]; //Update global current speaker
+        speaker_str = data.user; //Update global current speaker
         io.sockets.emit('new_round', data); 
      });
    });
