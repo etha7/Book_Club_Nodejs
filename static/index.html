@@ -20,7 +20,7 @@
        </div>
        <div class='card' id='round_card'> 
          The current speaker is:
-         <div id='speaker'>Default</div>
+         <div id='speaker'></div>
          <button type="button" id='round_button'>New Round</button>
        </div>
        <div class='card' id='pagenumber_card'>
@@ -64,6 +64,10 @@
 
     //Init the page
     socket.on('init', function(data) {
+        //Load current speaker
+        var speaker = document.querySelector('#speaker');
+        speaker.innerHTML = data.speaker;
+  
         //Load existing comments from database
         var comments = data.comments;
         var i = 0;

@@ -42,19 +42,18 @@ app.get('/about', (req, res) => {
 
 });
 
-
+var speaker_str = "Default"; //Stores current speaker
 //Handle server/client events:
 io.on('connection', function(socket) {
 
    //Initiate a new connection
    console.log("New Connection");
    var welcome_str = 'Welcome!';
-   //Send welcome, and all saved comments from MongoDB database;
-   
+   //Send welcome, speaker, and all saved comments from MongoDB database;
    var comments = db.collection('comments');
    comments.find({}).toArray((err, result) => {
       if(err) throw err;
-      socket.emit('init', {welcome: welcome_str, comments: result});
+      socket.emit('init', {welcome: welcome_str, comments: result, speaker: speaker_str});
    });
 
    socket.on('username_button', (data) => {
@@ -75,6 +74,7 @@ io.on('connection', function(socket) {
            var rand_index = Math.floor(Math.random()*result.length);
            data = { user: result[rand_index]['username'] };
         }
+        speaker_str = data[user]; //Update global current speaker
         io.sockets.emit('new_round', data); 
      });
    });
