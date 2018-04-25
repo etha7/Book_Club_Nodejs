@@ -11,7 +11,6 @@ app.use(express.static(__dirname +'/static'));
 app.set('views', path.join(__dirname, 'views'));
 
 //Handle MongoDB
-
 var db;
 var db_str = 'bookclub';
 const MongoClient = require('mongodb').MongoClient
@@ -43,7 +42,11 @@ var server = app.listen(port, () => {
 });
 const io = require('socket.io')(server);
 
+
+//TEMP DATA
 var speaker_str = "Default"; //Stores current speaker
+var current_users = [];
+
 //Handle server/client events:
 io.on('connection', function(socket) {
 
@@ -54,7 +57,12 @@ io.on('connection', function(socket) {
    var comments = db.collection('comments');
    comments.find({}).toArray((err, result) => {
       if(err) throw err;
-      socket.emit('init', {welcome: welcome_str, comments: result, speaker: speaker_str});
+      socket.emit('init', { 
+                            welcome: welcome_str, 
+                            comments: result, 
+                            speaker: speaker_str, 
+                            users: current_users
+                          });
    });
 
    socket.on('username_button', (data) => {
@@ -124,6 +132,16 @@ io.on('connection', function(socket) {
     //Delete all stored pagenumbers
     pagenumbers.remove({}, (err, obj) => {});
     
+   });
+  
+   //Handle new logins
+   socket.on('login', (data) => {
+    current_users.push(data.user);
+    io.sockets.emit('new_user', data);
+   });
+   socket.on('signout', (data) => {
+    current_users.splice(current_users.indexOf(data.user), 1);
+    io.sockets.emit('signout', data);
    });
    
    

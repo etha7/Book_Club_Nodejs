@@ -43,6 +43,9 @@
             <button type="button" id='comment_button'>Submit</button>      
             <button type="button" id='anonymouscomment_button'>Submit Anonymously</button>
           </div>
+          <div class='card' id='users_card'>
+            <label> Users currently online: </label>
+          </div>
        </div>
        <div id='commentholder' class='cardholder'>
        </div>
@@ -79,6 +82,16 @@
         //Load current speaker
         var speaker = document.querySelector('#speaker');
         speaker.innerHTML += data.speaker;
+        
+        //Load currentlylogged in users  
+        console.log(data);
+        console.log(data.users);
+        var i = 0;
+        for(u in data.users){
+          console.log();
+          load_user({user: data.users[i]});
+          i = i + 1;
+        }
   
         //Load existing comments from database
         var comments = data.comments;
@@ -101,7 +114,7 @@
     username_button.addEventListener('click', () => {
        var username_input = document.querySelector('#username_input');
        var username_card  = document.querySelector('#username_card');
-       username = username_input.innerHTML;
+       username = username_input.textContent;
        if (username == ""){
           return;
        }
@@ -110,7 +123,8 @@
        username_card.style.display = 'none';
        localStorage.setItem('username', username);
         
-       login();
+       login(); 
+       socket.emit('login', {user: username});
     });
      
     round_button.addEventListener('click', () => {
@@ -133,6 +147,7 @@
     
     signout_button.addEventListener('click', () => {
        localStorage.clear();
+       socket.emit('signout', {user: username});
        location.reload(); 
     });
 
@@ -187,10 +202,24 @@
         var pagenumber = document.querySelector('#pagenumber');
         pagenumber.innerHTML = data.pagenumber;
     }); 
+    socket.on('new_user', (data) => {
+       load_user(data);
+    });
+ 
+    function load_user(data){
+        var users_card = document.querySelector('#users_card');
+        var new_user   = document.createElement('div');
+        new_user.classList.add('username');
+        new_user.id = data.user;
+        new_user.appendChild(document.createTextNode(data.user)); 
+        users_card.appendChild(new_user);
+    }
+   
+    //Remove a signed out user from list of logged in users 
+    socket.on('signout', (data) => {
+      var signout_user = document.querySelector('#'+data.user); 
+      signout_user.parentNode.removeChild(signout_user);
+    });
     
-  
-    
-    
-      
   </script> 
 </html>
