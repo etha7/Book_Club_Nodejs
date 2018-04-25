@@ -21,13 +21,17 @@
             <button type="button" id='username_button'>Login</button>
           </div>
           <div class='card' id='round_card'> 
-            The current speaker is:
-            <div id='speaker'></div>
-            <button type="button" id='round_button'>New Round</button>
+            <div class='infocard_title'> 
+               <div>The current speaker is: &nbsp;</div>
+               <div id='speaker' class='username'></div>
+            </div>
+            <button type="button" id='round_button'>New Speaker</button>
           </div>
           <div class='card' id='pagenumber_card'>
-            The current lowest page number is: 
-            <div id='pagenumber'></div>
+            <div class='infocard_title'>
+              <div>The current lowest page number is: &nbsp;</div>
+              <div id='pagenumber'></div>
+            </div>
             <button type="button" id='pagenumber_reset_button'>Reset</button>
           </div>
           <div class='card' id='comment_card'>
@@ -74,7 +78,7 @@
     socket.on('init', function(data) {
         //Load current speaker
         var speaker = document.querySelector('#speaker');
-        speaker.innerHTML = data.speaker;
+        speaker.innerHTML += data.speaker;
   
         //Load existing comments from database
         var comments = data.comments;
@@ -167,6 +171,7 @@
         var commentholder = document.querySelector('#commentholder');
         var commentCard   = document.createElement('div');
         commentCard.classList.add('card');
+        commentCard.classList.add('comment');
         var username_holder = document.createElement('div');
         username_holder.classList.add('username');
         var user = document.createTextNode(data.user+':\n');
