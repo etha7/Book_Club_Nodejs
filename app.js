@@ -10,12 +10,6 @@ var path = require('path');
 app.use(express.static(__dirname +'/static'));
 app.set('views', path.join(__dirname, 'views'));
 
-//app.listen(port, hostname, () => {
-var server = app.listen(port, () => {
-  console.log('Server running at http://'+hostname+':'+port+'/');
-});
-const io = require('socket.io')(server);
-
 //Handle MongoDB
 
 var db;
@@ -32,6 +26,7 @@ MongoClient.connect(mongo_uri, (err,client) => {
   }
 });
 
+
 //Handle GETS
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname,'static/index.html'));
@@ -41,6 +36,12 @@ app.get('/about', (req, res) => {
   res.send('\n\nI made this for our book club!\n\n');
 
 });
+
+//Start socket.io server
+var server = app.listen(port, () => {
+  console.log('Server running at http://'+hostname+':'+port+'/');
+});
+const io = require('socket.io')(server);
 
 var speaker_str = "Default"; //Stores current speaker
 //Handle server/client events:

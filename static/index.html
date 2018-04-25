@@ -6,11 +6,12 @@
     <link rel="stylesheet" type="text/css" href="/css/index.css">
   </head>
   <body>
-    <div class="header" id='header'>
+    <div class="header card" id='header'>
        <h1> Book Club </h1>
        <div id='subtitle'>
          <p> Be gentle with the website friendos. </p>
        </div>
+       <button type="button" id='signout_button'>Sign Out</button>
     </div>
     <div id='cardholder_holder'>
        <div id='infoholder' class='cardholder'>
@@ -30,7 +31,6 @@
             <button type="button" id='pagenumber_reset_button'>Reset</button>
           </div>
           <div class='card' id='comment_card'>
-            <button type="button" id='signout_button'>Sign Out</button>
             <label>How far have you read this week?</label>
             <div contenteditable="true" class="field" id="pagenumber_input" type=text></div>
             <button type="button" id='pagenumber_button'>Submit</button>      
@@ -55,6 +55,8 @@
     if (!(temp == null)){
       username = temp;
       login();  
+    }else{
+      document.querySelector('#signout_button').style.display = 'none';
     }
 
     function login() {
@@ -63,7 +65,9 @@
       var username_h2   = document.createElement('h2');
       var username_text = document.createTextNode("Welcome "+username);
       username_h2.appendChild(username_text);
-      document.querySelector('#header').appendChild(username_h2);
+      //document.querySelector('#header').appendChild(username_h2);
+      document.querySelector('#subtitle').insertAdjacentHTML('afterend',username_h2.outerHTML);
+      document.querySelector('#signout_button').style.display = '';
     }
 
     //Init the page
@@ -163,9 +167,12 @@
         var commentholder = document.querySelector('#commentholder');
         var commentCard   = document.createElement('div');
         commentCard.classList.add('card');
+        var username_holder = document.createElement('div');
+        username_holder.classList.add('username');
         var user = document.createTextNode(data.user+':\n');
         var comment = document.createTextNode(data.comment);
-        commentCard.appendChild(user);
+        username_holder.appendChild(user);
+        commentCard.appendChild(username_holder);
         commentCard.appendChild(comment);
         commentholder.appendChild(commentCard);
     }
