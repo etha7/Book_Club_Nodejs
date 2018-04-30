@@ -1,0 +1,58 @@
+<html lang="en">
+  <head>
+    <title> Book Club </title>
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
+  </head>
+  <body>
+    <div id='cardholder_holder'>
+       <div id='infoholder' class='cardholder'>
+          <div class='card' id='username_card'> 
+            <h1> Create an Account: </h1>
+            Username:
+            <div contenteditable="true" class="field" id="username_input" type=text></div>
+            Password:
+            <div contenteditable="true" class="field" id="password_input" type=text></div>
+            <button type="button" id='create_button'>Create an Account</button>
+          </div>
+          <div class='card' id='create_result' style='display: none'></div>
+        
+       </div>
+     </div>  
+     </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+  
+    var socket = io(); //.connect('http://localhost');
+
+    //Handle button clicks
+    var create_button = document.querySelector("#create_button");
+    create_button.addEventListener('click', () => {
+      var username_input = document.querySelector("#username_input");
+      var username_str       = username_input.textContent;
+      var password_input = document.querySelector("#password_input");
+      var password_str       = password_input.textContent;
+
+      var data = {username: username_str, password: password_str };
+      socket.emit('create_account', data); 
+    });
+    
+    socket.on('create_success', (data) => {
+      var result_card =  document.querySelector('#create_result')
+      result_card.textContent = 'success';
+      result_card.style.display = '';
+     
+      localStorage.setItem('username', data.username);   
+      console.log(localStorage.getItem('username'));
+      window.location.href = '/';
+    });
+
+    socket.on('create_failure', (data) => {
+      var result_card =  document.querySelector('#create_result')
+      result_card.textContent = data.error;
+      result_card.style.display = '';
+    });
+    
+  </script> 
+</html>

@@ -9,7 +9,6 @@ const favicon = require('serve-favicon');
 app.use(favicon(path.join(__dirname,'static','images','favicon.ico')));
 app.use(express.static(__dirname +'/static'));
 app.set('views', path.join(__dirname, 'views'));
-
 //Handle MongoDB
 var db;
 var db_str = 'bookclub';
@@ -36,6 +35,9 @@ function run_app(){
      res.send('\n\nI made this for our book club!\n\n');
    
    });
+   app.get('/createAccount', (req, res) => {
+     res.sendFile(path.join(__dirname,'static/createAccount.html'));
+   })
    
    //Start socket.io server
    var server = app.listen(port, () => {
@@ -84,27 +86,30 @@ function run_app(){
                              });
       });
    
-      socket.on('username_button', (data) => {
-        var entry = {
-                      'username': data.username
-                    }
-        var users = db.collection('users');
-        users.insert(entry); 
-      });
       
       socket.on('round_button', (data) => {
-        var users = db.collection('users');
-        users.find({}).toArray((err, result) => {  
-           if(err) throw err;
+           if (current_users.length == 0){
+              data = { username: 'Default'};
+           } else {
+              var rand_index = Math.floor(Math.random()*current_users.length);
+              data = { username: current_users[rand_index] };
+           }
+           speaker_str = data.username; //Update global current speaker
+           io.sockets.emit('new_round', data); 
+        /*var users = db.collection('users');
+        //users.find({}).toArray((err, result) => {  
+        //   if(err) throw err;
            if (result.length == 0){
-              data = { user: 'Default'};
+              data = { username: 'Default'};
            } else {
               var rand_index = Math.floor(Math.random()*result.length);
-              data = { user: result[rand_index]['username'] };
+              data = { username: result[rand_index]['username'] };
            }
-           speaker_str = data.user; //Update global current speaker
+           speaker_str = data.username; //Update global current speaker
            io.sockets.emit('new_round', data); 
+       
         });
+       */
       });
       //Handle comment submittions
       socket.on('comment_button', (data) => {
@@ -113,8 +118,9 @@ function run_app(){
                      'comment' : data.comment
                     };
         var comments = db.collection('comments');
-        comments.insert(entry);
-        io.sockets.emit('new_comment', data);
+        comments.insert(entry, () => {
+           io.sockets.emit('new_comment', data);
+        });
       });
    
       //Initliaze pagenumber
@@ -138,8 +144,6 @@ function run_app(){
       //Handle pagenumber submittions
       socket.on('pagenumber_button', lock_w((data) => {
            //BROKEN BECAUSE pagenumber_button events are affecting each other
-           console.log('pagenumber:');
-           console.log(data.pagenumber);
            var pagenumbers = db.collection('pagenumbers');
            var pagenumber = data.pagenumber;
            var entry = { 
@@ -151,7 +155,6 @@ function run_app(){
                  if(pagenumber <= new_min){
                     io.sockets.emit('new_lowest_pagenumber', data);
                  }
-                 console.log('finished '+data.pagenumber);
               });
            }
            pagenumbers.insert(entry, find_and_emit_min);
@@ -159,7 +162,6 @@ function run_app(){
       ); 
    
       socket.on('pagenumber_reset_button', lock_w( (data) => {
-          console.log('reset');
           var pagenumbers = db.collection('pagenumbers');   
           //Delete all stored pagenumbers
           pagenumbers.remove({}, (err, obj) => {console.log('finished reset')});
@@ -167,12 +169,46 @@ function run_app(){
       ); 
       //Handle new logins
       socket.on('login', (data) => {
-       current_users.push(data.user);
-       io.sockets.emit('new_user', data);
+       
+       var users = db.collection('users');
+       users_cursor = users.find({'username': data.username, 
+                                  'password': data.password});
+       users_cursor.toArray((err, result) => { 
+           if(result.length != 0){
+              current_users.push(data.username);
+              io.sockets.emit('new_user', data);
+              socket.emit('login_success', data);
+           }else{
+              data.error = "Username or password incorrect";
+              socket.emit('login_failure', data);
+           }
+       });
       });
+
       socket.on('signout', (data) => {
-       current_users.splice(current_users.indexOf(data.user), 1);
-       io.sockets.emit('signout', data);
+       var username_index = current_users.indexOf(data.username);
+       if (!(username_index == -1)){
+         current_users.splice(current_users.indexOf(data.username), 1); 
+       } 
+       socket.broadcast.emit('signout', data);
+
+      });
+   
+      //Handle account creation
+      socket.on('create_account', (data) => {
+       var users = db.collection('users'); 
+       var username = data.username;
+       var password = data.password;
+       var user =  users.find({'username': username}).limit(1).toArray();
+       if(user.length == 0 || user === undefined){
+         socket.emit('create_failure', {error: 'Username Taken'}); 
+       }else{
+         users.insert({'username': username, 'password': password}, () => {
+            socket.emit('create_success', {username: data.username, error: null}); 
+         });
+       }
+         
+       
       });
    });
 }

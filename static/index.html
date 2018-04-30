@@ -18,8 +18,12 @@
           <div class='card' id='username_card'> 
             Username:
             <div contenteditable="true" class="field" id="username_input" type=text></div>
+            Password:
+            <div contenteditable="true" class="field" id="password_input" type=text></div>
             <button type="button" id='username_button'>Login</button>
+            <button type="button" id='create_button'>Create an Account</button>
           </div>
+          <div class='card' id='login_result_card' style='display: none'></div>
           <div class='card' id='round_card'> 
             <div class='infocard_title'> 
                <div>The current speaker is: &nbsp;</div>
@@ -61,12 +65,12 @@
     var temp = localStorage.getItem('username');
     if (!(temp == null)){
       username = temp;
-      login();  
+      login(username);  
     }else{
       document.querySelector('#signout_button').style.display = 'none';
     }
 
-    function login() {
+    function login(username) {
       //Hide username_card, show username
       document.querySelector('#username_card').style.display = 'none';
       var username_h2   = document.createElement('h2');
@@ -84,12 +88,9 @@
         speaker.innerHTML += data.speaker;
         
         //Load currently logged in users  
-        console.log(data);
-        console.log(data.users);
         var i = 0;
         for(u in data.users){
-          console.log();
-          load_user({user: data.users[i]});
+          load_user({username: data.users[i]});
           i = i + 1;
         }
   
@@ -104,6 +105,7 @@
     
     //Handle button clicks
     var username_button = document.querySelector("#username_button");
+    var create_button   = document.querySelector("#create_button");
     var round_button    = document.querySelector("#round_button");
     var pagenumber_button = document.querySelector("#pagenumber_button");
     var pagenumber_reset_button = document.querySelector("#pagenumber_reset_button");
@@ -114,19 +116,21 @@
     username_button.addEventListener('click', () => {
        var username_input = document.querySelector('#username_input');
        var username_card  = document.querySelector('#username_card');
-       username = username_input.textContent;
+       var username = username_input.textContent;
+
+       var password_str = document.querySelector('#password_input').textContent;
        if (username == ""){
-          return;
+           return;
        }
        var username_str = (username_input.textContent);
-       socket.emit('username_button', {username: username_str});
-       username_card.style.display = 'none';
-       localStorage.setItem('username', username);
-        
-       login(); 
-       socket.emit('login', {user: username});
+       socket.emit('login', {username: username_str,
+                                       password: password_str});
     });
-     
+
+    create_button.addEventListener('click', () => {
+         window.location.href = '/createAccount';
+    }); 
+    //Handle new speaker: 
     round_button.addEventListener('click', () => {
        socket.emit('round_button');
     });
@@ -146,8 +150,9 @@
     }); 
     
     signout_button.addEventListener('click', () => {
+       var username = localStorage.getItem('username');
        localStorage.clear();
-       socket.emit('signout', {user: username});
+       socket.emit('signout', {username: username});
        location.reload(); 
     });
 
@@ -172,8 +177,7 @@
 
     //Handle new round
     socket.on('new_round', (data) => {
-      console.log(data);
-      document.querySelector('#speaker').innerHTML = data.user; 
+      document.querySelector('#speaker').innerHTML = data.username; 
     });
    
  
@@ -202,22 +206,38 @@
         var pagenumber = document.querySelector('#pagenumber');
         pagenumber.innerHTML = data.pagenumber;
     }); 
+
     socket.on('new_user', (data) => {
        load_user(data);
     });
- 
+     
     function load_user(data){
         var users_card = document.querySelector('#users_card');
         var new_user   = document.createElement('div');
         new_user.classList.add('username');
-        new_user.id = data.user;
-        new_user.appendChild(document.createTextNode(data.user)); 
+        new_user.id = data.username;
+        new_user.appendChild(document.createTextNode(data.username)); 
         users_card.appendChild(new_user);
     }
+
+    socket.on('login_success', (data) => {  
+      var username_card = document.querySelector('#username_card');
+      var username = data.username;
+      username_card.style.display = 'none';
+      localStorage.setItem('username', username); 
+      login(username); 
+      document.querySelector('#login_result_card').style.display = 'none';
+    });
+
+    socket.on('login_failure', (data) => {
+      var result_card = document.querySelector('#login_result_card')
+      result_card.style.display = '';
+      result_card.textContent = data.error;
+    });
    
     //Remove a signed out user from list of logged in users 
     socket.on('signout', (data) => {
-      var signout_user = document.querySelector('#'+data.user); 
+      var signout_user = document.querySelector('#'+data.username); 
       signout_user.parentNode.removeChild(signout_user);
     });
     
