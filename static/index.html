@@ -38,6 +38,7 @@
             </div>
             <button type="button" id='pagenumber_reset_button'>Reset</button>
           </div>
+          <div class='card' id='pagenumber_result_card' style='display: none'></div>
           <div class='card' id='comment_card'>
             <label>How far have you read this week?</label>
             <div contenteditable="true" class="field" id="pagenumber_input" type=text></div>
@@ -130,6 +131,7 @@
     create_button.addEventListener('click', () => {
          window.location.href = '/createAccount';
     }); 
+
     //Handle new speaker: 
     round_button.addEventListener('click', () => {
        socket.emit('round_button');
@@ -139,9 +141,17 @@
        var pagenumber_input = document.querySelector('#pagenumber_input');
        if(pagenumber_input == ""){
           return;
+       } 
+       var pagenumber_result_card = document.querySelector('#pagenumber_result_card');
+       var pagenumber = parseInt(pagenumber_input.innerHTML);
+       if(isNaN(pagenumber)){
+         pagenumber_result_card.style.display = '';
+         pagenumber_result_card.textContent   = 'Page number must be an integer';
+       }else{
+         socket.emit('pagenumber_button', {pagenumber: parseInt(pagenumber_input.innerHTML)});
+         pagenumber_input.innerHTML = "";
+         pagenumber_result_card.style.display = 'none';
        }
-       socket.emit('pagenumber_button', {pagenumber: parseInt(pagenumber_input.innerHTML)});
-       pagenumber_input.innerHTML = "";
     }); 
 
     pagenumber_reset_button.addEventListener('click', () => {
